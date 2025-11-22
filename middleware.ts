@@ -1,19 +1,10 @@
-import {
-  auth,
-  clerkMiddleware,
-  createRouteMatcher,
-} from "@clerk/nextjs/server";
+import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 
-const isProtectedRoute = createRouteMatcher(["/admin"]);
+const isProtectedRoute = createRouteMatcher(["/admin(.*)"]);
 
 export default clerkMiddleware(async (auth, req) => {
-  const authUser = await auth();
-  const role = authUser.orgRole?.replace("org:", "");
-
-  console.log("role", isProtectedRoute(req) && role === "admin");
-
-  if (isProtectedRoute(req) && role !== "admin") {
-    await auth.protect();
+  if (isProtectedRoute(req)) {
+    await auth.protect({ role: "org:admin" });
   }
 });
 
